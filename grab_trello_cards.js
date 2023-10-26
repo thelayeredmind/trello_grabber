@@ -1,8 +1,8 @@
+// Enter your key and token path here;
 const {key, token} = require('../../secrets/trello')["obsidian-transfer"];
 const fs = require('fs');
 const path = require('path');
 const args = process.argv.slice(2);
-
 
 async function fetchTrello(route){
   const base_url = 'https://api.trello.com/1/'
@@ -74,7 +74,8 @@ async function get_stuff(){
   const my_board = boards.map(board => ({name: board.name, id: board.id})).find(board => board.name.includes(args[0]));
   const target_board = await fetchTrello(`boards/${my_board.id}/cards`)
   const cards = target_board.map(card => ({name: card.name, id: card.id, desc: card.desc, list: card.idList}))
-  const waitFor = (10/100 * 3) * 1000; // Rate is 100 requests per 10 seconds, per card I do three requests.
+  // Rate is 100 requests per 10 seconds, 3 request per card.
+  const waitFor = (10/100 * 3) * 1000;
   queueProcesses(cards.map(card => () => write_card(card)), waitFor);
 }
 
