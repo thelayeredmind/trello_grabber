@@ -1,7 +1,6 @@
 const {key, token} = require('../../secrets/trello')["obsidian-transfer"];
 const fs = require('fs');
 const path = require('path');
-const {WritableStream} = require('node:stream/web');
 
 
 async function fetchTrello(route){
@@ -78,12 +77,4 @@ async function get_stuff(){
   queueProcesses(cards.map(card => () => write_card(card)), waitFor);
 }
 
-// await fs.writeFile('./results.json', JSON.stringify(), () => undefined);
 get_stuff()
-
-async function testApi(){
-  const result = await fetchTrello(`/lists/5c600b6eb3513208f195061d`)
-  console.log(result);
-}
-
-// testApi();
