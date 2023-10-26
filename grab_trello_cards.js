@@ -56,15 +56,15 @@ async function write_card(card){
   const list2 = await fetchTrello(`lists/${list}`);
   const actions = await fetchTrello(`/cards/${id}/actions`);
   const notes = actions.map(action => action.data.text);
-  const full_path = path.join(".", "from_trello", list2.name, `${fixName(name)}.md`);
+  const full_path = path.join(".", "output", list2.name, `${fixName(name)}.md`);
   dirExists(full_path);
   const obsidian_note = fs.createWriteStream(full_path);
   console.log(`Writing to ${full_path}`);
   obsidian_note.write(desc + '\n\n\n');
-  obsidian_note.write("## Attachments" + '\n');
+  obsidian_note.write("## Attachments" + '\n\n\n');
   attachments.forEach(attachment => obsidian_note.write(`- [${attachment.name}](${attachment.url})\n`));
-  obsidian_note.write("## Notes" + '\n');
-  notes.forEach(note => obsidian_note.write(`${note}\n---\n`));
+  obsidian_note.write("## Notes" + '\n\n\n');
+  notes.forEach(note => obsidian_note.write(`${note}\n\n---\n\n`));
   obsidian_note.end();
 }
 
@@ -73,7 +73,7 @@ async function get_stuff(){
   const my_board = boards.map(board => ({name: board.name, id: board.id})).find(board => board.name.includes("Path to Creative Technologist"));
   const target_board = await fetchTrello(`boards/${my_board.id}/cards`)
   const cards = target_board.map(card => ({name: card.name, id: card.id, desc: card.desc, list: card.idList}))
-  const waitFor = (10/100 * 3) * 1000; // Rate is 100 requests per second, per card I do three requests.
+  const waitFor = (10/100 * 3) * 1000; // Rate is 100 requests per 10 seconds, per card I do three requests.
   queueProcesses(cards.map(card => () => write_card(card)), waitFor);
 }
 
