@@ -1,6 +1,7 @@
 const {key, token} = require('../../secrets/trello')["obsidian-transfer"];
 const fs = require('fs');
 const path = require('path');
+const args = process.argv.slice(2);
 
 
 async function fetchTrello(route){
@@ -30,7 +31,7 @@ function dirExists(filePath) {
 }
 
 function fixName(name){
-  return name.replaceAll(new RegExp(/[\s:\/,|]/g), "_").replaceAll(new RegExp(/[&"()'.]/g), "");
+  return name.replaceAll(new RegExp(/[\s:\/,|]/g), "_").replaceAll(new RegExp(/[&"()'.?!]/g), "");
 }
 
 function queueProcesses(processes, timeout){
@@ -56,7 +57,7 @@ async function write_card(card){
   const list2 = await fetchTrello(`lists/${list}`);
   const actions = await fetchTrello(`/cards/${id}/actions`);
   const notes = actions.map(action => action.data.text);
-  const full_path = path.join(".", "output", list2.name, `${fixName(name)}.md`);
+  const full_path = path.join(args[1] ? args[1] : path.join(".", "output", list2.name), `${fixName(name)}.md`);
   dirExists(full_path);
   const obsidian_note = fs.createWriteStream(full_path);
   console.log(`Writing to ${full_path}`);
@@ -70,7 +71,7 @@ async function write_card(card){
 
 async function get_stuff(){
   const boards = await fetchTrello('members/me/boards');
-  const my_board = boards.map(board => ({name: board.name, id: board.id})).find(board => board.name.includes("Path to Creative Technologist"));
+  const my_board = boards.map(board => ({name: board.name, id: board.id})).find(board => board.name.includes(args[0]));
   const target_board = await fetchTrello(`boards/${my_board.id}/cards`)
   const cards = target_board.map(card => ({name: card.name, id: card.id, desc: card.desc, list: card.idList}))
   const waitFor = (10/100 * 3) * 1000; // Rate is 100 requests per 10 seconds, per card I do three requests.
