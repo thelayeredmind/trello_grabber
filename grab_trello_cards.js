@@ -41,7 +41,7 @@ function queueProcesses(processes, timeout){
     if(head){
       head();
     } else {
-      console.log("Done!")
+      setTimeout(()=>console.log("\n-------------\n\nDone!\n\n--------------\n"), 2000);
       return
     }
     const tail = processes.slice(1);
@@ -57,7 +57,7 @@ async function write_card(card){
   const list2 = await fetchTrello(`lists/${list}`);
   const actions = await fetchTrello(`/cards/${id}/actions`);
   const notes = actions.map(action => action.data.text);
-  const full_path = path.join(args[1] ? args[1] : path.join(".", "output", list2.name), `${fixName(name)}.md`);
+  const full_path = path.join(args[1] ? args[1] : path.join(".", "output"), list2.name, `${fixName(name)}.md`);
   dirExists(full_path);
   const obsidian_note = fs.createWriteStream(full_path);
   console.log(`Writing to ${full_path}`);
